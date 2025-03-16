@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ai_image_gen"
-version = "0.1.1"
+version = "0.1.2"
 description = "AI-powered agent for image processing and generation, as well as video generation from text prompts"
 authors = ["Your Name <your.email@example.com>"]
 readme = "README.md"

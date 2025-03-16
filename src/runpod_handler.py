@@ -96,10 +96,9 @@ def save_file(output_path):
         if os.path.exists(output_path):
             logger.info(f"File {output_path} exists, uploading to storage...")
             # Upload to RunPod storage and get a public URL
-            filename = os.path.basename(output_path)
-            file_location = os.path.dirname(output_path)
+            filename = os.path.basename(output_path)            
             
-            presigned_url = upload_file_to_bucket(filename, file_location, bucket_creds)
+            presigned_url = upload_file_to_bucket(filename, output_path, bucket_creds)
             return presigned_url
         else:
             logger.warn(f"File {output_path} does not exist, skipping upload.")
@@ -110,13 +109,12 @@ def save_file(output_path):
 
 def save_file_fallback(output_path):
     filename = os.path.basename(output_path)
-    file_location = os.path.dirname(output_path)
     bucket_name = os.getenv("S3_BUCKET_NAME")
 
     s3_client = boto3.client('s3')
-    s3_client.upload_file(file_location, bucket_name, filename)
+    s3_client.upload_file(output_path, bucket_name, filename)
     
-    print(f"Image generation example completed successfully. Image saved to: {output_path}")
+    logger.info(f"File {filename} uploaded to S3 bucket: {bucket_name}")
 
     return f"https://{bucket_name}.s3.amazonaws.com/{filename}"
 
