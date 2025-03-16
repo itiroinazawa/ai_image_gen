@@ -9,7 +9,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     USE_FP16=1 \
     PORT=8000
 
-# Install system dependencies in a single RUN command to minimize layers
+# Install system dependencies including git
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.10 python3.10-dev python3-pip \
     ffmpeg libsm6 libxext6 libgl1 \
@@ -28,11 +28,14 @@ WORKDIR /app
 # Copy dependency files first for better caching
 COPY pyproject.toml poetry.lock* ./
 
-# Install Python dependencies before copying the entire codebase to leverage Docker caching
-RUN poetry install --no-interaction --no-ansi --without dev
+# Ensure git is installed before installing dependencies
+RUN git --version
 
 # Copy project files
 COPY . .
+
+# Install Python dependencies before copying the entire codebase to leverage Docker caching
+RUN poetry install --no-interaction --no-ansi --without dev
 
 # Ensure necessary directories exist
 RUN mkdir -p /app/cache /app/output
