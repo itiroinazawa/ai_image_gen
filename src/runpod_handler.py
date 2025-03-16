@@ -265,7 +265,9 @@ def handler(event):
             return {"error": f"Unknown method: {method}"}
 
         if output_path:
-            full_path = os.path.join("output", output_path)
+            logger.info(f"Output path: {output_path}")
+            #full_path = os.path.join("output", output_path)
+            full_path = output_path
             presigned_url = save_file(full_path)
             
             if presigned_url:
