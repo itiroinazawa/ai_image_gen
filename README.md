@@ -26,6 +26,7 @@ An AI-powered agent for image processing and generation, as well as video genera
 ### Prerequisites
 
 - Python 3.9+
+- Poetry (for dependency management)
 - Docker (for containerization)
 - RunPod account (for deployment)
 
@@ -37,9 +38,13 @@ An AI-powered agent for image processing and generation, as well as video genera
    cd ai_image_gen
    ```
 
-2. Install dependencies:
+2. Install dependencies using Poetry:
    ```
-   pip install -r requirements.txt
+   # Install Poetry if you don't have it
+   curl -sSL https://install.python-poetry.org | python3 -
+   
+   # Install dependencies
+   poetry install
    ```
 
 3. Configure environment variables:
@@ -53,6 +58,10 @@ An AI-powered agent for image processing and generation, as well as video genera
 ### Local Development
 
 ```bash
+# Activate the Poetry virtual environment
+poetry shell
+
+# Run the application
 python src/main.py
 ```
 
@@ -84,7 +93,7 @@ ai_image_gen/
 │   └── README.md           # Deployment instructions
 ├── examples/               # Example usage
 ├── .env.example            # Example environment variables
-├── requirements.txt        # Python dependencies
+├── pyproject.toml          # Poetry configuration and dependencies
 └── README.md               # This file
 ```
 

@@ -41,7 +41,7 @@ RunPod is a cloud platform that provides GPU instances for AI workloads. It's an
 
 ### Building and Pushing the Docker Image
 
-Before deploying to RunPod, you need to build and push your Docker image to a registry like Docker Hub:
+Before deploying to RunPod, you need to build and push your Docker image to a registry like Docker Hub. The project now uses Poetry for dependency management, which is already configured in the Dockerfiles:
 
 ```bash
 # Navigate to the project root directory
@@ -62,6 +62,24 @@ For GPU-optimized deployment, use the GPU Dockerfile:
 ```bash
 docker build -t your-dockerhub-username/ai-image-gen:gpu -f deployment/Dockerfile.gpu .
 docker push your-dockerhub-username/ai-image-gen:gpu
+```
+
+### Local Development with Poetry
+
+For local development, Poetry provides a convenient way to manage dependencies:
+
+```bash
+# Install Poetry if you don't have it
+curl -sSL https://install.python-poetry.org | python3 -
+
+# Install dependencies
+poetry install
+
+# Activate the virtual environment
+poetry shell
+
+# Run the application
+python src/main.py
 ```
 
 ### RunPod Handler for Serverless Deployment
@@ -117,7 +135,7 @@ def handler(event):
 runpod.serverless.start({"handler": handler})
 ```
 
-Add `runpod` to your `requirements.txt` file and update your Dockerfile to use this handler for serverless deployments.
+The `runpod` package is already included in the `pyproject.toml` file. Make sure your Dockerfile is configured to use this handler for serverless deployments.
 
 ## Monitoring and Scaling
 

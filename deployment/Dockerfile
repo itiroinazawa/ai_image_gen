@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.1.1-cudnn8-runtime-ubuntu22.04
+FROM nvidia/cuda:12.3.0-cudnn9-runtime-ubuntu22.04
 
 # Set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1
@@ -8,25 +8,33 @@ ENV DEBIAN_FRONTEND=noninteractive
 # Install system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     python3.10 \
+    python3.10-dev \
     python3-pip \
-    python3-dev \
     ffmpeg \
     libsm6 \
     libxext6 \
     libgl1 \
     git \
     wget \
+    curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | python3.10 - \
+    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry
 
 # Set working directory
 WORKDIR /app
 
-# Copy requirements file
-COPY requirements.txt .
+# Copy pyproject.toml and poetry.lock (if exists)
+COPY pyproject.toml poetry.lock* ./
+
+# Configure Poetry to not create a virtual environment
+RUN poetry config virtualenvs.create false
 
 # Install Python dependencies
-RUN pip3 install --no-cache-dir -r requirements.txt
+RUN poetry install --no-interaction --no-ansi --without dev
 
 # Copy project files
 COPY . .
@@ -43,5 +51,5 @@ ENV PORT=8000
 EXPOSE 8000
 
 # Command to run the application
-CMD ["python3", "src/main.py", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python3.10", "src/main.py", "--host", "0.0.0.0", "--port", "8000"]
 
