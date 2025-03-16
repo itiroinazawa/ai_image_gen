@@ -1,11 +1,12 @@
 """
 AI Generation Agent for image and video processing and generation.
 """
-import os
-import uuid
+
 import logging
-from typing import Dict, List, Optional, Any
+import os
 import random
+import uuid
+from typing import Any, Dict, List, Optional
 
 # Import from relative paths
 from models.video_generator import VideoGenerator
@@ -28,7 +29,7 @@ class VideoGenerationAgent:
         """
         self.config = config
         self.video_generator = VideoGenerator(config)
-        
+
         # Create output directory if it doesn't exist
         os.makedirs(config.output_dir, exist_ok=True)
 
@@ -63,9 +64,9 @@ class VideoGenerationAgent:
         """
         if seed is None:
             seed = random.randint(0, 2**32 - 1)
-            
+
         logger.info(f"Generating video with prompt: {prompt}")
-        
+
         # Generate the video
         video = self.video_generator.generate(
             prompt=prompt,
@@ -78,10 +79,10 @@ class VideoGenerationAgent:
             width=width,
             seed=seed,
         )
-        
+
         # Save the video
         output_path = self._save_video(video)
-        
+
         return output_path
 
     def list_models(self) -> List[Dict[str, str]]:
@@ -93,7 +94,7 @@ class VideoGenerationAgent:
         """
         # Combine models from image and video generators
         video_models = self.video_generator.list_models()
-        
+
         return video_models
 
     def _save_video(self, video: Any) -> str:
@@ -109,8 +110,8 @@ class VideoGenerationAgent:
         # Generate a unique filename
         filename = f"{uuid.uuid4()}.mp4"
         output_path = os.path.join(self.config.output_dir, filename)
-        
+
         # Save the video (implementation depends on the video format)
         self.video_generator.save_video(video, output_path)
-        
+
         return output_path

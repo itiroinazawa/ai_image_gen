@@ -1,8 +1,10 @@
 """
 Configuration utilities for the AI Image & Video Generation Agent.
 """
+
 import os
-from typing import Dict, Any, Optional
+from typing import Any, Dict, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -14,23 +16,29 @@ class Config(BaseModel):
     # General settings
     output_dir: str = Field(default="output")
     cache_dir: str = Field(default="cache")
-    
+
     # Model settings
     default_image_model: str = Field(default="runwayml/stable-diffusion-v1-5")
     default_video_model: str = Field(default="damo-vilab/text-to-video-ms-1.7b")
-    
+
     # Generation settings
     default_num_inference_steps: int = Field(default=50)
     default_guidance_scale: float = Field(default=7.5)
     default_strength: float = Field(default=0.8)
-    
+
     # Hardware settings
-    device: str = Field(default="cuda" if os.environ.get("USE_GPU", "1") == "1" else "cpu")
-    precision: str = Field(default="fp16" if os.environ.get("USE_FP16", "1") == "1" else "fp32")
-    
+    device: str = Field(
+        default="cuda" if os.environ.get("USE_GPU", "1") == "1" else "cpu"
+    )
+    precision: str = Field(
+        default="fp16" if os.environ.get("USE_FP16", "1") == "1" else "fp32"
+    )
+
     # API settings
-    huggingface_token: Optional[str] = Field(default=os.environ.get("HUGGINGFACE_TOKEN"))
-    
+    huggingface_token: Optional[str] = Field(
+        default=os.environ.get("HUGGINGFACE_TOKEN")
+    )
+
     # Available models
     image_models: Dict[str, Dict[str, Any]] = Field(
         default={
@@ -52,7 +60,7 @@ class Config(BaseModel):
             },
         }
     )
-    
+
     video_models: Dict[str, Dict[str, Any]] = Field(
         default={
             "damo-vilab/text-to-video-ms-1.7b": {
@@ -65,7 +73,7 @@ class Config(BaseModel):
             },
         }
     )
-    
+
     # Available LoRAs
     loras: Dict[str, Dict[str, Any]] = Field(
         default={
@@ -79,16 +87,16 @@ class Config(BaseModel):
             },
         }
     )
-    
+
     def __init__(self, **data):
         """
         Initialize the configuration.
-        
+
         Args:
             **data: Configuration data
         """
         super().__init__(**data)
-        
+
         # Create directories if they don't exist
         os.makedirs(self.output_dir, exist_ok=True)
         os.makedirs(self.cache_dir, exist_ok=True)

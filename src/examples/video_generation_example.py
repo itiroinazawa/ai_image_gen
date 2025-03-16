@@ -18,28 +18,28 @@ from utils.config import Config
 def run_video_generation_example():
     """
     Run an example of video generation.
-    
+
     Returns:
         str: Path to the generated video
     """
     print("Running video generation example...")
-    
+
     # Initialize the agent
     config = Config()
     agent = VideoGenerationAgent(config)
-    
+
     # Hardcoded parameters
     prompt = "A spaceship flying through an asteroid field with stars in the background"
     negative_prompt = "blurry, low quality, explosion, crash"
     model_id = "damo-vilab/text-to-video-ms-1.7b"
-    #num_inference_steps = 30
+    # num_inference_steps = 30
     num_inference_steps = 20
     guidance_scale = 7.5
     num_frames = 16
     height = 256
     width = 256
     seed = 42
-    
+
     # Generate the video
     start_time = time.time()
     output_path = agent.generate_video(
@@ -54,18 +54,20 @@ def run_video_generation_example():
         seed=seed,
     )
     end_time = time.time()
-    
+
     print(f"Generated video saved to: {output_path}")
     print(f"Video generation took {end_time - start_time:.2f} seconds")
-    
+
     return output_path
 
 
 if __name__ == "__main__":
     # Create output directory if it doesn't exist
     os.makedirs("output", exist_ok=True)
-    
+
     # Run video generation example
     video_path = run_video_generation_example()
-    
-    print(f"Video generation example completed successfully. Video saved to: {video_path}")
+
+    print(
+        f"Video generation example completed successfully. Video saved to: {video_path}"
+    )

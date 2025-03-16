@@ -1,11 +1,13 @@
 """
 AI Generation Agent for image and video processing and generation.
 """
-import os
-import uuid
+
 import logging
-from typing import Dict, List, Optional
+import os
 import random
+import uuid
+from typing import Dict, List, Optional
+
 from PIL import Image
 
 # Import from relative paths
@@ -29,7 +31,7 @@ class ImageGenerationAgent:
         """
         self.config = config
         self.image_generator = ImageGenerator(config)
-        
+
         # Create output directory if it doesn't exist
         os.makedirs(config.output_dir, exist_ok=True)
 
@@ -62,9 +64,9 @@ class ImageGenerationAgent:
         """
         if seed is None:
             seed = random.randint(0, 2**32 - 1)
-            
+
         logger.info(f"Generating image with prompt: {prompt}")
-        
+
         # Generate the image
         image = self.image_generator.generate(
             prompt=prompt,
@@ -77,10 +79,10 @@ class ImageGenerationAgent:
             width=width,
             seed=seed,
         )
-        
+
         # Save the image
         output_path = self._save_image(image)
-        
+
         return output_path
 
     def list_models(self) -> List[Dict[str, str]]:
@@ -114,8 +116,8 @@ class ImageGenerationAgent:
         # Generate a unique filename
         filename = f"{uuid.uuid4()}.png"
         output_path = os.path.join(self.config.output_dir, filename)
-        
+
         # Save the image
         image.save(output_path)
-        
+
         return output_path

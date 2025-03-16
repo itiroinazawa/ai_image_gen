@@ -1,13 +1,15 @@
 """
 AI Generation Agent for image and video processing and generation.
 """
-import os
-import uuid
+
 import logging
-from typing import Optional
-import requests
-from io import BytesIO
+import os
 import random
+import uuid
+from io import BytesIO
+from typing import Optional
+
+import requests
 from fastapi import UploadFile
 from PIL import Image
 
@@ -31,7 +33,7 @@ class ImageChangerAgent:
         """
         self.config = config
         self.image_processor = ImageProcessor(config)
-        
+
         # Create output directory if it doesn't exist
         os.makedirs(config.output_dir, exist_ok=True)
 
@@ -66,13 +68,13 @@ class ImageChangerAgent:
         """
         if seed is None:
             seed = random.randint(0, 2**32 - 1)
-            
+
         logger.info(f"Processing image with prompt: {prompt}")
-        
+
         # Read the image
         contents = image.file.read()
         input_image = Image.open(BytesIO(contents))
-        
+
         # Process the image
         processed_image = self.image_processor.process(
             image=input_image,
@@ -85,10 +87,10 @@ class ImageChangerAgent:
             strength=strength,
             seed=seed,
         )
-        
+
         # Save the image
         output_path = self._save_image(processed_image)
-        
+
         return output_path
 
     def process_image_url(
@@ -122,14 +124,14 @@ class ImageChangerAgent:
         """
         if seed is None:
             seed = random.randint(0, 2**32 - 1)
-            
+
         logger.info(f"Processing image from URL: {image_url} with prompt: {prompt}")
-        
+
         # Download the image
         response = requests.get(image_url)
         response.raise_for_status()
         input_image = Image.open(BytesIO(response.content))
-        
+
         # Process the image
         processed_image = self.image_processor.process(
             image=input_image,
@@ -142,12 +144,11 @@ class ImageChangerAgent:
             strength=strength,
             seed=seed,
         )
-        
+
         # Save the image
         output_path = self._save_image(processed_image)
-        
-        return output_path
 
+        return output_path
 
     def _save_image(self, image: Image.Image) -> str:
         """
@@ -162,8 +163,8 @@ class ImageChangerAgent:
         # Generate a unique filename
         filename = f"{uuid.uuid4()}.png"
         output_path = os.path.join(self.config.output_dir, filename)
-        
+
         # Save the image
         image.save(output_path)
-        
+
         return output_path
