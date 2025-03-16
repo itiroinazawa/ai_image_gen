@@ -7,15 +7,10 @@ import random
 from typing import Optional
 
 import torch
-from diffusers import (
-    DiffusionPipeline,
-    StableDiffusionImg2ImgPipeline,
-    StableDiffusionXLImg2ImgPipeline,
-)
-from diffusers.loaders import LoraLoaderMixin
 from PIL import Image
 
 from checkers.device_checker import verify_device, verify_precision
+from models.utils.image_models_util import ImageModelsUtil
 from utils.config import Config
 
 logger = logging.getLogger(__name__)
@@ -41,8 +36,7 @@ class ImageProcessor:
 
         logger.info(f"Using device: {self.device}, precision: {self.precision}")
 
-        # Cache for loaded models
-        self._model_cache = {}
+        self._image_models_util = ImageModelsUtil(config)
 
     def process(
         self,
@@ -85,11 +79,11 @@ class ImageProcessor:
         )
 
         # Load the model
-        pipe = self._load_model(model_id)
+        pipe = self._image_models_util._load_model_img_2_img(model_id)
 
         # Load LoRA if specified
         if lora_id is not None:
-            pipe = self._load_lora(pipe, lora_id)
+            pipe = self._image_models_util._load_lora(pipe, lora_id)
 
         # Ensure the image is in RGB mode
         if image.mode != "RGB":
@@ -121,83 +115,3 @@ class ImageProcessor:
 
         # Return the processed image
         return result.images[0]
-
-    def _load_model(self, model_id: str) -> DiffusionPipeline:
-        """
-        Load a model.
-
-        Args:
-            model_id: Model ID to load
-
-        Returns:
-            Loaded model
-        """
-        # Check if the model is already loaded
-        cache_key = f"img2img_{model_id}"
-        if cache_key in self._model_cache:
-            return self._model_cache[cache_key]
-
-        logger.info(f"Loading img2img model: {model_id}")
-
-        # Load the appropriate pipeline based on the model ID
-        if "stable-diffusion-xl" in model_id:
-            pipe = StableDiffusionXLImg2ImgPipeline.from_pretrained(
-                model_id,
-                torch_dtype=(
-                    torch.float16 if self.precision == "fp16" else torch.float32
-                ),
-                use_safetensors=True,
-                variant="fp16" if self.precision == "fp16" else None,
-                cache_dir=self.config.cache_dir,
-                token=self.config.huggingface_token,
-            )
-        else:
-            pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
-                model_id,
-                torch_dtype=(
-                    torch.float16 if self.precision == "fp16" else torch.float32
-                ),
-                use_safetensors=True,
-                variant="fp16" if self.precision == "fp16" else None,
-                cache_dir=self.config.cache_dir,
-                token=self.config.huggingface_token,
-            )
-
-        # Move the model to the device
-        pipe = pipe.to(self.device)
-
-        # Enable memory optimization if available
-        if hasattr(pipe, "enable_attention_slicing"):
-            pipe.enable_attention_slicing()
-
-        # Cache the model
-        self._model_cache[cache_key] = pipe
-
-        return pipe
-
-    def _load_lora(self, pipe: DiffusionPipeline, lora_id: str) -> DiffusionPipeline:
-        """
-        Load a LoRA model.
-
-        Args:
-            pipe: Diffusion pipeline to load the LoRA into
-            lora_id: LoRA model ID to load
-
-        Returns:
-            Diffusion pipeline with LoRA loaded
-        """
-        logger.info(f"Loading LoRA: {lora_id}")
-
-        # Check if the pipeline supports LoRA
-        if not isinstance(pipe, LoraLoaderMixin):
-            logger.warning(f"Pipeline {type(pipe)} does not support LoRA")
-            return pipe
-
-        # Load the LoRA weights
-        pipe.load_lora_weights(
-            lora_id,
-            cache_dir=self.config.cache_dir,
-            token=self.config.huggingface_token,
-        )
-
-        return pipe

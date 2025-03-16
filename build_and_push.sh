@@ -1,121 +1,78 @@
 #!/bin/bash
-# Docker build, tag, and push script for AI Image Generation RunPod Worker
+# Optimized Docker build, tag, and push script for AI Image Generation RunPod Worker
+
+set -e  # Exit script on error
 
 # Configuration
-DOCKER_REGISTRY="docker.io"  # Use your preferred registry (DockerHub, GitHub, etc.)
-DOCKER_USERNAME="itiroinazawa"  # Replace with your Docker registry username
+DOCKER_REGISTRY="docker.io"
+DOCKER_USERNAME="itiroinazawa"
 IMAGE_NAME="ai-image-gen-runpod-gpu"
-VERSION=$(grep 'version' pyproject.toml | head -n 1 | cut -d '"' -f 2)  # Extract version from pyproject.toml
-PLATFORM="linux/amd64"  # Default platform
-
-# Parse command line arguments
-NO_CACHE=false
+VERSION=$(grep 'version' pyproject.toml | head -n 1 | cut -d '"' -f 2)
+PLATFORM="linux/amd64"
 USE_BUILDKIT=true
+NO_CACHE=false
 BUILD_ARGS="--build-arg DISABLE_MODEL_DOWNLOAD=1"
 
-while [[ $# -gt 0 ]]; do
-  case $1 in
-    --no-cache)
-      NO_CACHE=true
-      shift
-      ;;
-    --platform)
-      PLATFORM="$2"
-      shift 2
-      ;;
-    --build-arg)
-      BUILD_ARGS="$BUILD_ARGS --build-arg $2"
-      shift 2
-      ;;
-    --no-buildkit)
-      USE_BUILDKIT=false
-      shift
-      ;;
-    *)
-      echo "Unknown option: $1"
-      echo "Available options: --no-cache, --platform, --build-arg, --no-buildkit"
-      exit 1
-      ;;
+# Parse command-line arguments using getopts
+while getopts ":np:a:b" opt; do
+  case ${opt} in
+    n ) NO_CACHE=true ;;
+    p ) PLATFORM="$OPTARG" ;;
+    a ) BUILD_ARGS+=" --build-arg $OPTARG" ;;
+    b ) USE_BUILDKIT=false ;;
+    \? ) echo "Usage: $0 [-n] [-p platform] [-a build_arg] [-b]" && exit 1 ;;
   esac
 done
 
-# Full image name
+# Full image name and tags
 FULL_IMAGE_NAME="${DOCKER_REGISTRY}/${DOCKER_USERNAME}/${IMAGE_NAME}"
-
-# Tags
 TAG_LATEST="${FULL_IMAGE_NAME}:latest"
 TAG_VERSION="${FULL_IMAGE_NAME}:${VERSION}"
 TIMESTAMP=$(date +%Y%m%d%H%M%S)
 TAG_TIMESTAMP="${FULL_IMAGE_NAME}:${VERSION}-${TIMESTAMP}"
+TAGS=("$TAG_VERSION" "$TAG_LATEST" "$TAG_TIMESTAMP")
 
 # Set cache options
-CACHE_OPTIONS=""
-if [ "$NO_CACHE" = true ]; then
-  CACHE_OPTIONS="--no-cache"
-fi
+CACHE_OPTIONS=$([ "$NO_CACHE" = true ] && echo "--no-cache" || echo "")
 
-# Enable BuildKit for better layer caching
+# Enable BuildKit for faster builds
 if [ "$USE_BUILDKIT" = true ]; then
   export DOCKER_BUILDKIT=1
-  BUILD_ARGS="$BUILD_ARGS --build-arg BUILDKIT_INLINE_CACHE=1"
+  BUILD_ARGS+=" --build-arg BUILDKIT_INLINE_CACHE=1"
 fi
 
-# Build the Docker image
-echo "Building Docker image: ${TAG_VERSION}..."
-echo "Using platform: ${PLATFORM}"
-echo "Cache settings: ${CACHE_OPTIONS:-"Using default cache"}"
-echo "BuildKit enabled: ${USE_BUILDKIT}"
+echo "🚀 Starting Docker build..."
+echo "🔹 Platform: $PLATFORM"
+echo "🔹 Cache: $([ "$NO_CACHE" = true ] && echo "Disabled" || echo "Enabled")"
+echo "🔹 BuildKit: $([ "$USE_BUILDKIT" = true ] && echo "Enabled" || echo "Disabled")"
+echo "🔹 Tags: ${TAGS[*]}"
 
-docker build $CACHE_OPTIONS \
-  --platform $PLATFORM \
-  $BUILD_ARGS \
-  -f Dockerfile.gpu \
-  -t ${TAG_VERSION} \
-  -t ${TAG_LATEST} \
-  -t ${TAG_TIMESTAMP} \
-  .
+# Build the Docker image with multiple tags
+docker build $CACHE_OPTIONS --platform $PLATFORM $BUILD_ARGS -f Dockerfile.gpu \
+  $(printf " -t %s" "${TAGS[@]}") .
 
-# Check if build was successful
-if [ $? -ne 0 ]; then
-    echo "Error: Docker build failed!"
-    exit 1
-fi
+echo "✅ Docker build completed successfully!"
 
-echo "Docker image built successfully!"
+# Ask the user if they want to push
+read -p "Do you want to push the image? (y/n): " PUSH_CHOICE
+if [[ "$PUSH_CHOICE" =~ ^[Yy]$ ]]; then
+  echo "🔐 Logging into Docker registry..."
+  docker login $DOCKER_REGISTRY
 
-# Ask if the user wants to push the image
-read -p "Do you want to push the image to ${DOCKER_REGISTRY}? (y/n): " PUSH_CHOICE
+  echo "📤 Pushing Docker images..."
+  for TAG in "${TAGS[@]}"; do
+    docker push "$TAG" &
+  done
+  wait  # Ensure all parallel pushes complete
 
-if [ "$PUSH_CHOICE" = "y" ] || [ "$PUSH_CHOICE" = "Y" ]; then
-    # Login to Docker registry
-    echo "Logging in to Docker registry..."
-    docker login ${DOCKER_REGISTRY}
-    
-    if [ $? -ne 0 ]; then
-        echo "Error: Docker login failed!"
-        exit 1
-    fi
-    
-    # Push the images
-    echo "Pushing Docker image with all tags..."
-    docker push ${TAG_VERSION}
-    docker push ${TAG_LATEST}
-    docker push ${TAG_TIMESTAMP}
-    
-    echo "Docker images pushed successfully!"
-    echo "Image tags:"
-    echo "  - ${TAG_VERSION}"
-    echo "  - ${TAG_LATEST}"
-    echo "  - ${TAG_TIMESTAMP}"
+  echo "✅ Docker images pushed successfully!"
 else
-    echo "Skipping push to Docker registry."
-    echo "To push the image later, run:"
-    echo "  docker login ${DOCKER_REGISTRY}"
-    echo "  docker push ${TAG_VERSION}"
-    echo "  docker push ${TAG_LATEST}"
-    echo "  docker push ${TAG_TIMESTAMP}"
+  echo "❌ Skipping push. To push later, run:"
+  for TAG in "${TAGS[@]}"; do
+    echo "  docker push $TAG"
+  done
 fi
 
-# Print image size information
-echo "\nImage size information:"
-docker images ${FULL_IMAGE_NAME}
+# Print image details
+echo -e "\n📊 Image size information:"
+docker images "$FULL_IMAGE_NAME"

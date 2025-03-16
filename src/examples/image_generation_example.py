@@ -33,7 +33,7 @@ def run_image_generation_example():
     prompt = "A futuristic cityscape with flying cars and neon lights at night"
     negative_prompt = "daylight, sun, bright, blurry, low quality"
     model_id = "runwayml/stable-diffusion-v1-5"
-    
+
     # num_inference_steps = 30
     num_inference_steps = 10
     guidance_scale = 7.5
@@ -67,9 +67,7 @@ if __name__ == "__main__":
 
     # Upload image to S3
     s3_client = boto3.client("s3")
-    s3_client.upload_file(
-        image_path, "inz-runpod-bucket", "generated_image.png"
-    )
+    s3_client.upload_file(image_path, "inz-runpod-bucket", "generated_image.png")
 
     print(
         f"Image generation example completed successfully. Image saved to: {image_path}"

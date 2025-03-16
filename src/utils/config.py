@@ -20,6 +20,7 @@ class Config(BaseModel):
     # Model settings
     default_image_model: str = Field(default="runwayml/stable-diffusion-v1-5")
     default_video_model: str = Field(default="damo-vilab/text-to-video-ms-1.7b")
+    default_vae_model: str = Field(default="stabilityai/sd-vae-ft-mse")
 
     # Generation settings
     default_num_inference_steps: int = Field(default=50)
@@ -84,6 +85,24 @@ class Config(BaseModel):
             "ostris/ikea-instructions-lora": {
                 "name": "IKEA Instructions LoRA",
                 "type": "lora",
+            },
+        }
+    )
+
+    # Available VAE models
+    vae_models: Dict[str, Dict[str, Any]] = Field(
+        default={
+            "stabilityai/sd-vae-ft-mse": {
+                "name": "Stable Diffusion VAE FT-MSE",
+                "type": "vae",
+            },
+            "stabilityai/sd-vae-ft-ema": {
+                "name": "Stable Diffusion VAE FT-EMA",
+                "type": "vae",
+            },
+            "madebyollin/sdxl-vae-fp16-fix": {
+                "name": "SDXL VAE FP16 Fix",
+                "type": "vae",
             },
         }
     )

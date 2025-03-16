@@ -179,3 +179,7 @@ cache/models*
 
 # Output
 output
+
+# Clean
+unused_code.txt
+refactor_tips.md
