@@ -101,22 +101,7 @@ class ImageGenerator:
                 width=width,
             )
 
-        # Convert PIL image to NumPy array
-        image_array = (
-            np.array(result.images[0]).astype(np.float32) / 255.0
-        )  # Normalize to [0,1]
-
-        # Convert NumPy array to Tensor
-        image_tensor = torch.from_numpy(image_array)
-
-        # Handle potential NaN/infinity issues
-        image_tensor = torch.nan_to_num(image_tensor, nan=0.0, posinf=1.0, neginf=0.0)
-        image_tensor = torch.clamp(image_tensor, 0, 1)  # Ensure values are in [0,1]
-
-        # Convert back to NumPy array and scale to 255
-        image_array = (image_tensor * 255).byte().cpu().numpy()
-
-        # Convert NumPy array back to PIL image
-        image = Image.fromarray(image_array)
+        # Handle image
+        image = self._image_models_util.handle_image(result.images[0])        
 
         return image

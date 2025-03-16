@@ -65,10 +65,6 @@ if __name__ == "__main__":
     # Run image generation example
     image_path = run_image_generation_example()
 
-    # Upload image to S3
-    s3_client = boto3.client("s3")
-    s3_client.upload_file(image_path, "inz-runpod-bucket", "generated_image.png")
-
     print(
         f"Image generation example completed successfully. Image saved to: {image_path}"
     )
