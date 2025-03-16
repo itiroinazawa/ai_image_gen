@@ -27,7 +27,7 @@ from agent.image_gen_agent import ImageGenerationAgent
 from agent.video_gen_agent import VideoGenerationAgent
 from agent.image_changer_agent import ImageChangerAgent
 from utils.config import Config
-
+import boto3
 # Initialize logger
 logger = RunPodLogger()
 
@@ -76,6 +76,43 @@ def initialize_agents():
         error_traceback = traceback.format_exc()
         logger.error(f"Unexpected error initializing agents: {str(e)}\nStacktrace:\n{error_traceback}")
         raise e
+
+def save_file(output_path):
+    bucket_url = os.environ.get("BUCKET_ENDPOINT_URL")
+    bucket_access_key = os.environ.get("BUCKET_ACCESS_KEY_ID")
+    bucket_secret_key = os.environ.get("BUCKET_SECRET_ACCESS_KEY")
+    
+    bucket_creds = {
+        'endpointUrl': bucket_url,
+        'accessId': bucket_access_key,
+        'accessSecret': bucket_secret_key
+    }
+
+    logger.info("Saving File...")
+
+    # Upload the output file to RunPod storage if available
+    if output_path:
+        if os.path.exists(output_path):
+            logger.info(f"File {output_path} exists, uploading to storage...")
+            # Upload to RunPod storage and get a public URL
+            filename = os.path.basename(output_path)
+            file_location = os.path.dirname(output_path)
+            
+            presigned_url = upload_file_to_bucket(filename, file_location, bucket_creds)
+            return presigned_url
+    else:
+        logger.warning("No output path provided, skipping file upload.")
+        return None
+
+def save_file_fallback(output_path):
+    filename = os.path.basename(output_path)
+    file_location = os.path.dirname(output_path)
+
+    s3_client = boto3.client('s3')
+    s3_client.upload_file(file_location, 'inz-runpod-bucket', filename)
+    
+    print(f"Image generation example completed successfully. Image saved to: {output_path}")
+
 
 
 def handler(event):
@@ -126,7 +163,7 @@ def handler(event):
         bucket_url = os.environ.get("BUCKET_ENDPOINT_URL")
         bucket_access_key = os.environ.get("BUCKET_ACCESS_KEY_ID")
         bucket_secret_key = os.environ.get("BUCKET_SECRET_ACCESS_KEY")
-        
+
         # Process the request based on the method
         if method == "generate_image":
             logger.info(f"Generating image with prompt: {prompt}")
@@ -225,25 +262,17 @@ def handler(event):
         else:
             return {"error": f"Unknown method: {method}"}
 
-        bucket_creds = {
-            'endpointUrl': bucket_url,
-            'accessId': bucket_access_key,
-            'accessSecret': bucket_secret_key
-        }
-        
-        # Upload the output file to RunPod storage if available
         if output_path:
             full_path = os.path.join("output", output_path)
-            if os.path.exists(full_path):
-                # Upload to RunPod storage and get a public URL
-                filename = os.path.basename(full_path)
-                file_location = os.path.dirname(full_path)
-                
-                presigned_url = upload_file_to_bucket(filename, file_location, bucket_creds)
-                
-                if public_url:
-                    result["public_url"] = presigned_url
-        
+            presigned_url = save_file(full_path)
+            
+            if presigned_url:
+                result["public_url"] = presigned_url
+            else:
+                presigned_url = save_file_fallback(full_path)
+                result["public_url"] = presigned_url
+
+
         # Calculate processing time
         elapsed_time = time.time() - start_time
         
