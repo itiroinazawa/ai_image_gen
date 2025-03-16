@@ -1,0 +1,74 @@
+# Ignore cache directory with downloaded models
+cache/
+cache
+**/.cache/
+**/__pycache__/
+**/node_modules/
+**/.huggingface/
+**/.torch/
+**/tmp/
+**/*.ckpt
+**/*.safetensors
+**/*.bin
+**/*.pt
+**/*.pth
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Virtual environment
+venv/
+ENV/
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Output directory
+output/
+
+# Environment variables
+.env
+.env.local
+
+# Git
+.git/
+.gitignore
+
+# Logs
+*.log

@@ -100,6 +100,9 @@ def save_file(output_path):
             
             presigned_url = upload_file_to_bucket(filename, file_location, bucket_creds)
             return presigned_url
+        else:
+            logger.warning(f"File {output_path} does not exist, skipping upload.")
+            return None
     else:
         logger.warning("No output path provided, skipping file upload.")
         return None
@@ -107,12 +110,14 @@ def save_file(output_path):
 def save_file_fallback(output_path):
     filename = os.path.basename(output_path)
     file_location = os.path.dirname(output_path)
+    bucket_name = os.getenv("S3_BUCKET_NAME")
 
     s3_client = boto3.client('s3')
-    s3_client.upload_file(file_location, 'inz-runpod-bucket', filename)
+    s3_client.upload_file(file_location, bucket_name, filename)
     
     print(f"Image generation example completed successfully. Image saved to: {output_path}")
 
+    return f"https://{bucket_name}.s3.amazonaws.com/{filename}"
 
 
 def handler(event):
@@ -268,9 +273,12 @@ def handler(event):
             
             if presigned_url:
                 result["public_url"] = presigned_url
+                logger.info(f"Runpod File saved successfully: {full_path}")
+
             else:
                 presigned_url = save_file_fallback(full_path)
                 result["public_url"] = presigned_url
+                logger.info(f"Boto File saved successfully: {full_path}")
 
 
         # Calculate processing time
