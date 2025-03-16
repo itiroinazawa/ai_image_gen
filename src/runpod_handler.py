@@ -19,7 +19,7 @@ from io import BytesIO
 from PIL import Image
 
 import runpod
-from runpod.serverless.utils import rp_download, rp_upload, rp_cleanup
+from runpod.serverless.utils import rp_download, upload_file_to_bucket, rp_cleanup
 from runpod.serverless.modules.rp_logger import RunPodLogger
 
 # Import the agents and config
@@ -122,7 +122,10 @@ def handler(event):
         
         result = None
         output_path = None
-        
+
+        bucket_url = os.environ.get("BUCKET_ENDPOINT_URL")
+        bucket_access_key = os.environ.get("BUCKET_ACCESS_KEY_ID")
+        bucket_secret_key = os.environ.get("BUCKET_SECRET_ACCESS_KEY")
         # Process the request based on the method
         if method == "generate_image":
             logger.info(f"Generating image with prompt: {prompt}")
@@ -220,15 +223,25 @@ def handler(event):
             
         else:
             return {"error": f"Unknown method: {method}"}
+
+        bucket_creds = {
+            'endpointUrl': bucket_url,
+            'accessId': bucket_access_key,
+            'accessSecret': bucket_secret_key
+        }
         
         # Upload the output file to RunPod storage if available
         if output_path:
             full_path = os.path.join("output", output_path)
             if os.path.exists(full_path):
                 # Upload to RunPod storage and get a public URL
-                public_url = rp_upload(full_path)
+                filename = os.path.basename(full_path)
+                file_location = os.path.dirname(full_path)
+                
+                presigned_url = upload_file_to_bucket(filename, file_location, bucket_creds)
+                
                 if public_url:
-                    result["public_url"] = public_url
+                    result["public_url"] = presigned_url
         
         # Calculate processing time
         elapsed_time = time.time() - start_time
