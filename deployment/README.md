@@ -123,6 +123,21 @@ Add `runpod` to your `requirements.txt` file and update your Dockerfile to use t
 
 RunPod provides monitoring tools to track the usage and performance of your deployed endpoints. You can set up auto-scaling based on the load to ensure optimal performance and cost-efficiency.
 
+
+## Usage
+
+```json
+{
+    "input": {
+        "method": "generate_image",
+        "prompt": "A futuristic cityscape with flying cars and neon lights at night",
+        "negative_prompt": "daylight, sun, bright, blurry, low quality",
+        "model_id": "runwayml/stable-diffusion-v1-5",
+        "num_inference_steps": 30
+    }
+}
+```
+
 ## Troubleshooting
 
 If you encounter issues with the deployment, check the following:
