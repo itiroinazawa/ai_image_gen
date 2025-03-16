@@ -13,9 +13,8 @@ import torch
 from fastapi import UploadFile
 from PIL import Image
 
-# Import from relative paths
-from ..models.image_processor import ImageProcessor
-from ..utils.config import Config
+from models.image_processor import ImageProcessor
+from utils.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -169,4 +168,4 @@ class ImageChangerAgent:
         # Save the image
         image.save(output_path)
         
-        return filename
+        return output_path

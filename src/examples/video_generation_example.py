@@ -11,8 +11,8 @@ import time
 # Add the parent directory to the path so we can import the src module
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.agent.video_gen_agent import VideoGenerationAgent
-from src.utils.config import Config
+from agent.video_gen_agent import VideoGenerationAgent
+from utils.config import Config
 
 
 def run_video_generation_example():

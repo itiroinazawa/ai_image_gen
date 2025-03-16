@@ -11,8 +11,8 @@ from PIL import Image
 # Add the parent directory to the path so we can import the src module
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from src.agent.image_gen_agent import ImageGenerationAgent
-from src.utils.config import Config
+from agent.image_gen_agent import ImageGenerationAgent
+from utils.config import Config
 
 
 def run_image_generation_example():
@@ -31,7 +31,7 @@ def run_image_generation_example():
     # Hardcoded parameters
     prompt = "A futuristic cityscape with flying cars and neon lights at night"
     negative_prompt = "daylight, sun, bright, blurry, low quality"
-    model_id = "runwayml/stable-diffusion-v1-5"
+    model_id = "black-forest-labs/FLUX.1-dev"
     #num_inference_steps = 30
     num_inference_steps = 10
     guidance_scale = 7.5

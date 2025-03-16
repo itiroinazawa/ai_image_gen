@@ -18,10 +18,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
-from src.agent.image_gen_agent import ImageGenerationAgent
-from src.agent.video_gen_agent import VideoGenerationAgent
-from src.agent.image_changer_agent import ImageChangerAgent
-from src.utils.config import Config
+from agent.image_gen_agent import ImageGenerationAgent
+from agent.video_gen_agent import VideoGenerationAgent
+from agent.image_changer_agent import ImageChangerAgent
+from utils.config import Config
 
 # Load environment variables
 load_dotenv()

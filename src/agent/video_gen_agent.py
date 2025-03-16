@@ -9,8 +9,8 @@ from typing import Dict, List, Optional, Union, Any
 import random
 
 # Import from relative paths
-from ..models.video_generator import VideoGenerator
-from ..utils.config import Config
+from models.video_generator import VideoGenerator
+from utils.config import Config
 
 logger = logging.getLogger(__name__)
 
@@ -114,4 +114,4 @@ class VideoGenerationAgent:
         # Save the video (implementation depends on the video format)
         self.video_generator.save_video(video, output_path)
         
-        return filename
+        return output_path

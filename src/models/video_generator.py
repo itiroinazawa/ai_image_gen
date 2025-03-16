@@ -17,8 +17,8 @@ from diffusers import (
 import moviepy.editor as mpy
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 
-from src.utils.config import Config
-from src.checkers.device_checker import verify_device, verify_precision
+from utils.config import Config
+from checkers.device_checker import verify_device, verify_precision
 
 logger = logging.getLogger(__name__)
 

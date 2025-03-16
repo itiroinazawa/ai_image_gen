@@ -23,10 +23,10 @@ from runpod.serverless.utils import rp_download, upload_file_to_bucket, rp_clean
 from runpod.serverless.modules.rp_logger import RunPodLogger
 
 # Import the agents and config
-from src.agent.image_gen_agent import ImageGenerationAgent
-from src.agent.video_gen_agent import VideoGenerationAgent
-from src.agent.image_changer_agent import ImageChangerAgent
-from src.utils.config import Config
+from agent.image_gen_agent import ImageGenerationAgent
+from agent.video_gen_agent import VideoGenerationAgent
+from agent.image_changer_agent import ImageChangerAgent
+from utils.config import Config
 
 # Initialize logger
 logger = RunPodLogger()
@@ -126,6 +126,7 @@ def handler(event):
         bucket_url = os.environ.get("BUCKET_ENDPOINT_URL")
         bucket_access_key = os.environ.get("BUCKET_ACCESS_KEY_ID")
         bucket_secret_key = os.environ.get("BUCKET_SECRET_ACCESS_KEY")
+        
         # Process the request based on the method
         if method == "generate_image":
             logger.info(f"Generating image with prompt: {prompt}")
