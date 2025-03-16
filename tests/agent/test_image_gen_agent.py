@@ -3,9 +3,8 @@ Unit tests for the ImageGenerationAgent class.
 """
 import os
 import unittest
-from unittest.mock import patch, MagicMock, ANY
+from unittest.mock import patch, MagicMock
 from PIL import Image
-import random
 
 from src.agent.image_gen_agent import ImageGenerationAgent
 from src.utils.config import Config

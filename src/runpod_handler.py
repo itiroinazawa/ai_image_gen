@@ -28,6 +28,7 @@ from agent.video_gen_agent import VideoGenerationAgent
 from agent.image_changer_agent import ImageChangerAgent
 from utils.config import Config
 import boto3
+
 # Initialize logger
 logger = RunPodLogger()
 
@@ -164,10 +165,6 @@ def handler(event):
         
         result = None
         output_path = None
-
-        bucket_url = os.environ.get("BUCKET_ENDPOINT_URL")
-        bucket_access_key = os.environ.get("BUCKET_ACCESS_KEY_ID")
-        bucket_secret_key = os.environ.get("BUCKET_SECRET_ACCESS_KEY")
 
         # Process the request based on the method
         if method == "generate_image":

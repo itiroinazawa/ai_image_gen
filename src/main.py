@@ -16,7 +16,7 @@ from dotenv import load_dotenv
 from fastapi import FastAPI, File, UploadFile, Form, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 
 from agent.image_gen_agent import ImageGenerationAgent
 from agent.video_gen_agent import VideoGenerationAgent
@@ -59,6 +59,12 @@ app.mount("/output", StaticFiles(directory="output"), name="output")
 async def root():
     """Root endpoint."""
     return {"message": "AI Image & Video Generation Agent API"}
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for container orchestration systems."""
+    return {"status": "healthy"}
 
 
 @app.post("/generate-image")

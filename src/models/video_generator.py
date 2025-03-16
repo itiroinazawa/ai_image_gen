@@ -4,9 +4,8 @@ Video generator model for text-to-video generation.
 import logging
 import random
 import os
-from typing import Dict, List, Optional, Union, Any
+from typing import Dict, List, Optional, Any
 import torch
-import numpy as np
 from PIL import Image
 from diffusers import (
     DiffusionPipeline,
@@ -14,7 +13,6 @@ from diffusers import (
     TextToVideoZeroPipeline,
     DPMSolverMultistepScheduler,
 )
-import moviepy.editor as mpy
 from moviepy.video.io.ImageSequenceClip import ImageSequenceClip
 
 from utils.config import Config

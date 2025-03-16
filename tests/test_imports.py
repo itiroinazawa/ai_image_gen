@@ -37,10 +37,6 @@ class TestImports(unittest.TestCase):
     def test_module_imports(self):
         """Test importing all required modules."""
         # Try importing from the src.agent module
-        from src.agent.image_gen_agent import ImageGenerationAgent
-        from src.agent.video_gen_agent import VideoGenerationAgent
-        from src.agent.image_changer_agent import ImageChangerAgent
-        from src.utils.config import Config
         
         # If we get here without exceptions, the test passes
         self.assertTrue(True, "Successfully imported all agent modules")

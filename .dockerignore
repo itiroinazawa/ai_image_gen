@@ -1,6 +1,5 @@
 # Ignore cache directory with downloaded models
 cache/
-cache
 **/.cache/
 **/__pycache__/
 **/node_modules/
@@ -52,6 +51,7 @@ coverage.xml
 # Virtual environment
 venv/
 ENV/
+.venv/
 
 # IDE files
 .idea/
@@ -65,10 +65,45 @@ output/
 # Environment variables
 .env
 .env.local
+.env.development
+.env.test
+.env.production
 
 # Git
 .git/
+.github/
 .gitignore
 
 # Logs
 *.log
+logs/
+
+# Docker files (except the ones we need)
+Docker*
+!Dockerfile.gpu
+
+# Documentation
+docs/
+*.md
+!README.md
+
+# Test files
+tests/
+*_test.py
+*_tests.py
+test_*.py
+
+# Build scripts and CI/CD
+*.sh
+.gitlab-ci.yml
+.travis.yml
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# OS specific files
+.DS_Store
+Thumbsdb
+

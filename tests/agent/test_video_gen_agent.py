@@ -3,8 +3,7 @@ Unit tests for the VideoGenerationAgent class.
 """
 import os
 import unittest
-from unittest.mock import patch, MagicMock, ANY
-import random
+from unittest.mock import patch, MagicMock
 
 from src.agent.video_gen_agent import VideoGenerationAgent
 from src.utils.config import Config

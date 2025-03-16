@@ -43,3 +43,9 @@ line_length = 88
 
 [tool.pytest]
 testpaths = ["tests"]
+
+[tool.ruff]
+# Other general settings (e.g., line length, formatting)
+
+[tool.ruff.lint]
+ignore = ["E402"]  # Ignore E402 errors

@@ -1,26 +1,27 @@
-# Use NVIDIA CUDA base image
-FROM nvidia/cuda:12.3.2-cudnn9-runtime-ubuntu22.04
+# Multi-stage build for AI Image Generation application
 
-# Set environment variables
+# Stage 1: Builder stage
+FROM nvidia/cuda:12.3.2-cudnn9-runtime-ubuntu22.04 AS builder
+
+# Set environment variables for builder
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     DEBIAN_FRONTEND=noninteractive \
-    USE_GPU=1 \
-    USE_FP16=1 \
-    PORT=8000
+    POETRY_NO_INTERACTION=1 \
+    POETRY_VIRTUALENVS_IN_PROJECT=1 \
+    POETRY_VIRTUALENVS_CREATE=1 \
+    POETRY_CACHE_DIR=/tmp/poetry_cache
 
-# Install system dependencies including git
+# Install minimal system dependencies for building
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.10 python3.10-dev python3-pip \
-    ffmpeg libsm6 libxext6 libgl1 \
+    python3.10 python3.10-dev python3-pip python3.10-venv \
     git wget curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry and configure it globally
-RUN curl -sSL https://install.python-poetry.org | python3.10 - \
-    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry \
-    && poetry config virtualenvs.create false
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | python3.10 -
+ENV PATH="/root/.local/bin:$PATH"
 
 # Set working directory
 WORKDIR /app
@@ -28,20 +29,49 @@ WORKDIR /app
 # Copy dependency files first for better caching
 COPY pyproject.toml poetry.lock* ./
 
-# Ensure git is installed before installing dependencies
-RUN git --version
+# Install dependencies only (no dev dependencies)
+RUN poetry install --no-root --without dev
 
-# Copy project files
-COPY . .
+# Stage 2: Runtime stage
+FROM nvidia/cuda:12.3.2-cudnn9-runtime-ubuntu22.04 AS runtime
 
-# Install Python dependencies before copying the entire codebase to leverage Docker caching
-RUN poetry install --no-interaction --no-ansi --without dev
+# Set environment variables for runtime
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    USE_GPU=1 \
+    USE_FP16=1 \
+    PORT=8000 \
+    PYTHONPATH=/app
 
-# Ensure necessary directories exist
-RUN mkdir -p /app/cache /app/output
+# Install runtime dependencies only
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.10 python3.10-venv \
+    ffmpeg libsm6 libxext6 libgl1 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set working directory
+WORKDIR /app
+
+# Copy virtual environment from builder stage
+COPY --from=builder /app/.venv /app/.venv
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Copy only necessary project files
+COPY src/ /app/src/
+COPY pyproject.toml /app/
+
+# Create necessary directories with proper permissions
+RUN mkdir -p /app/cache /app/output && \
+    chmod -R 777 /app/cache /app/output
 
 # Expose port
 EXPOSE 8000
+
+# Set healthcheck
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
 # Command to run the application
 CMD ["python3.10", "-u", "src/runpod_handler.py"]

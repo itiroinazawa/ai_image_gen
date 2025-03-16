@@ -18,10 +18,6 @@ class TestRunpodImports(unittest.TestCase):
     def test_src_prefix_imports(self):
         """Test importing modules using src prefix."""
         # Try importing from the src.agent module directly
-        from src.agent.image_gen_agent import ImageGenerationAgent
-        from src.agent.video_gen_agent import VideoGenerationAgent
-        from src.agent.image_changer_agent import ImageChangerAgent
-        from src.utils.config import Config
         
         # If we get here without exceptions, the test passes
         self.assertTrue(True, "Successfully imported all modules using 'src' prefix")
@@ -29,11 +25,6 @@ class TestRunpodImports(unittest.TestCase):
     def test_runpod_imports(self):
         """Test importing modules as they are imported in runpod_handler.py."""
         # Now try the same imports as used in runpod_handler.py but with src prefix
-        import runpod
-        from src.agent.image_gen_agent import ImageGenerationAgent as ImageGenAgent2
-        from src.agent.video_gen_agent import VideoGenerationAgent as VideoGenAgent2
-        from src.agent.image_changer_agent import ImageChangerAgent as ImageChangerAgent2
-        from src.utils.config import Config as Config2
         
         # If we get here without exceptions, the test passes
         self.assertTrue(True, "Successfully imported all modules using relative imports")

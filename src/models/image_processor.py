@@ -3,7 +3,7 @@ Image processor model for image-to-image generation.
 """
 import logging
 import random
-from typing import Dict, List, Optional, Union, Any
+from typing import Optional
 import torch
 from PIL import Image
 from diffusers import (

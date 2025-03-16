@@ -3,10 +3,8 @@ Unit tests for the ImageChangerAgent class.
 """
 import os
 import unittest
-from unittest.mock import patch, MagicMock, ANY
-from io import BytesIO
+from unittest.mock import patch, MagicMock
 from PIL import Image
-import requests
 from fastapi import UploadFile
 
 from src.agent.image_changer_agent import ImageChangerAgent
