@@ -46,7 +46,7 @@ class ImageModelsUtil:
             for lora_id, lora_info in self.config.loras.items()
         ]
 
-    def _load_model(self, model_id: str) -> DiffusionPipeline:
+    def _load_model_txt_2_img(self, model_id: str) -> DiffusionPipeline:
         """
         Load a model.
 

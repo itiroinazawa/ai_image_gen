@@ -91,27 +91,15 @@ class ImageProcessor:
 
         # Process the image
         with torch.autocast(self.device.type, enabled=self.precision == "fp16"):
-            if "stable-diffusion-xl" in model_id:
-                # SDXL has a different API
-                result = pipe(
-                    prompt=prompt,
-                    image=image,
-                    negative_prompt=negative_prompt,
-                    num_inference_steps=num_inference_steps,
-                    guidance_scale=guidance_scale,
-                    strength=strength,
-                    generator=generator,
-                )
-            else:
-                result = pipe(
-                    prompt=prompt,
-                    image=image,
-                    negative_prompt=negative_prompt,
-                    num_inference_steps=num_inference_steps,
-                    guidance_scale=guidance_scale,
-                    strength=strength,
-                    generator=generator,
-                )
+            result = pipe(
+                prompt=prompt,
+                image=image,
+                negative_prompt=negative_prompt,
+                num_inference_steps=num_inference_steps,
+                guidance_scale=guidance_scale,
+                strength=strength,
+                generator=generator,
+            )
 
         # Return the processed image
         return result.images[0]

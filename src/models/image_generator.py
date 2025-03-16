@@ -83,7 +83,7 @@ class ImageGenerator:
         )
 
         # Load the model
-        pipe = self._image_models_util._load_model(model_id)
+        pipe = self._image_models_util._load_model_txt_2_img(model_id)
 
         # Load LoRA if specified
         if lora_id is not None:
