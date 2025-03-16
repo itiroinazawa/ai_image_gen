@@ -1,6 +1,7 @@
 """
 AI Generation Agent for image and video processing and generation.
 """
+import sys
 import os
 import uuid
 import logging
@@ -12,8 +13,9 @@ import torch
 from fastapi import UploadFile
 from PIL import Image
 
-from src.models.image_processor import ImageProcessor
-from src.utils.config import Config
+# Import from relative paths
+from ..models.image_processor import ImageProcessor
+from ..utils.config import Config
 
 logger = logging.getLogger(__name__)
 

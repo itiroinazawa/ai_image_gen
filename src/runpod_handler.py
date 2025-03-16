@@ -5,7 +5,14 @@ RunPod serverless handler for the AI Image & Video Generation Agent.
 This script provides a serverless interface for the agent, allowing it to be
 deployed on RunPod's serverless infrastructure.
 """
+# Add the project root to the Python path to allow for absolute imports
+import sys
 import os
+
+# Get the directory of this file and add its parent (project root) to the path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
+
 import time
 import base64
 from io import BytesIO
@@ -16,10 +23,10 @@ from runpod.serverless.utils import rp_download, rp_upload, rp_cleanup
 from runpod.serverless.modules.rp_logger import RunPodLogger
 
 # Import the agents and config
-from agent.image_gen_agent import ImageGenerationAgent
-from agent.video_gen_agent import VideoGenerationAgent
-from agent.image_changer_agent import ImageChangerAgent
-from utils.config import Config
+from src.agent.image_gen_agent import ImageGenerationAgent
+from src.agent.video_gen_agent import VideoGenerationAgent
+from src.agent.image_changer_agent import ImageChangerAgent
+from src.utils.config import Config
 
 # Initialize logger
 logger = RunPodLogger()
@@ -60,8 +67,15 @@ def initialize_agents():
             os.environ['CUDA_VISIBLE_DEVICES'] = ''
             initialize_agents()
         else:
-            logger.error(f"Error initializing agents: {str(e)}")
+            import traceback
+            error_traceback = traceback.format_exc()
+            logger.error(f"Error initializing agents: {str(e)}\nStacktrace:\n{error_traceback}")
             raise e
+    except Exception as e:
+        import traceback
+        error_traceback = traceback.format_exc()
+        logger.error(f"Unexpected error initializing agents: {str(e)}\nStacktrace:\n{error_traceback}")
+        raise e
 
 
 def handler(event):
@@ -231,9 +245,12 @@ def handler(event):
             }
         }
     except Exception as e:
-        logger.error(f"Error processing request: {str(e)}")
+        import traceback
+        error_traceback = traceback.format_exc()
+        logger.error(f"Error processing request: {str(e)}\nStacktrace:\n{error_traceback}")
         return {
-            "error": str(e)
+            "error": str(e),
+            "traceback": error_traceback
         }
 
 

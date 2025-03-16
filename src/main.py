@@ -2,6 +2,13 @@
 """
 Main entry point for the AI Image & Video Generation Agent.
 """
+# Add the project root to the Python path to allow for absolute imports
+import sys
+import os
+
+# Get the directory of this file and add its parent (project root) to the path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
 import os
 import argparse
 import uvicorn
@@ -11,10 +18,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse, JSONResponse
 
-from agent.image_gen_agent import ImageGenerationAgent
-from agent.video_gen_agent import VideoGenerationAgent
-from agent.image_changer_agent import ImageChangerAgent
-from utils.config import Config
+from src.agent.image_gen_agent import ImageGenerationAgent
+from src.agent.video_gen_agent import VideoGenerationAgent
+from src.agent.image_changer_agent import ImageChangerAgent
+from src.utils.config import Config
 
 # Load environment variables
 load_dotenv()

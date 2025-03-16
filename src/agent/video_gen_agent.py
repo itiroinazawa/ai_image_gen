@@ -1,13 +1,16 @@
 """
 AI Generation Agent for image and video processing and generation.
 """
+import sys
 import os
 import uuid
 import logging
 from typing import Dict, List, Optional, Union, Any
 import random
-from src.models.video_generator import VideoGenerator
-from src.utils.config import Config
+
+# Import from relative paths
+from ..models.video_generator import VideoGenerator
+from ..utils.config import Config
 
 logger = logging.getLogger(__name__)
 

@@ -14,6 +14,8 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')
 from tests.agent.test_image_gen_agent import TestImageGenerationAgent
 from tests.agent.test_video_gen_agent import TestVideoGenerationAgent
 from tests.agent.test_image_changer_agent import TestImageChangerAgent
+from tests.test_runpod_imports import TestRunpodImports
+from tests.test_imports import TestImports
 
 
 def run_all_tests():
@@ -25,6 +27,8 @@ def run_all_tests():
     test_suite.addTest(unittest.makeSuite(TestImageGenerationAgent))
     test_suite.addTest(unittest.makeSuite(TestVideoGenerationAgent))
     test_suite.addTest(unittest.makeSuite(TestImageChangerAgent))
+    test_suite.addTest(unittest.makeSuite(TestRunpodImports))
+    test_suite.addTest(unittest.makeSuite(TestImports))
     
     # Run the tests
     runner = unittest.TextTestRunner(verbosity=2)
