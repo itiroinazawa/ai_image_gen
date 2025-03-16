@@ -1,0 +1,9 @@
+{
+    "input": {
+        "method": "generate_image",
+        "prompt": "A futuristic cityscape with flying cars and neon lights at night",
+        "negative_prompt": "daylight, sun, bright, blurry, low quality",
+        "model_id": "runwayml/stable-diffusion-v1-5",
+        "num_inference_steps": 30
+    }
+}

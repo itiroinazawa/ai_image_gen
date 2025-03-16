@@ -1,0 +1,12 @@
+{
+    "input": {
+      "method": "generate_image",
+      "prompt": "A fierce samurai warrior flies on the back of a majestic dragon through a stormy sky. The samurai wears ornate, battle-worn armor with intricate engravings and grips a gleaming katana under the moonlight. The dragon’s massive wings spread wide, its red and gold scales shimmering. Below, mist swirls around ancient temples in a vast mountainous landscape. Lightning illuminates the scene, casting an epic glow on the warrior and his mythical mount, evoking power, honor, and destiny",
+      "model_id": "stabilityai/stable-diffusion-xl-base-1.0",
+      "num_inference_steps": 30,
+      "guidance_scale": 5.0,
+      "height": 1024,
+      "width": 1024,
+      "seed": null
+    }
+  }

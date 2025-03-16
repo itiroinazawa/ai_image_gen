@@ -4,6 +4,7 @@ Image generator model for text-to-image generation.
 
 import logging
 import random
+import numpy as np
 from typing import Dict, List, Optional
 
 import torch
@@ -81,9 +82,7 @@ class ImageGenerator:
             seed = random.randint(0, 2**32 - 1)
             generator = torch.Generator(device=self.device).manual_seed(seed)
 
-        logger.info(
-            f"Generating image with prompt: {prompt}, model: {model_id}, seed: {seed}"
-        )
+        logger.info(f"Generating image with prompt: {prompt}, model: {model_id}, seed: {seed}")
 
         # Load the model
         pipe = self._load_model(model_id)
@@ -94,30 +93,33 @@ class ImageGenerator:
 
         # Generate the image
         with torch.autocast(self.device.type, enabled=self.precision == "fp16"):
-            if "stable-diffusion-xl" in model_id:
-                # SDXL has a different API
-                result = pipe(
-                    prompt=prompt,
-                    negative_prompt=negative_prompt,
-                    num_inference_steps=num_inference_steps,
-                    guidance_scale=guidance_scale,
-                    generator=generator,
-                    height=height,
-                    width=width,
-                )
-            else:
-                result = pipe(
-                    prompt=prompt,
-                    negative_prompt=negative_prompt,
-                    num_inference_steps=num_inference_steps,
-                    guidance_scale=guidance_scale,
-                    generator=generator,
-                    height=height,
-                    width=width,
-                )
+            result = pipe(
+                prompt=prompt,
+                negative_prompt=negative_prompt,
+                num_inference_steps=num_inference_steps,
+                guidance_scale=guidance_scale,
+                generator=generator,
+                height=height,
+                width=width,
+            )
 
-        # Return the generated image
-        return result.images[0]
+        # Convert PIL image to NumPy array
+        image_array = np.array(result.images[0]).astype(np.float32) / 255.0  # Normalize to [0,1]
+
+        # Convert NumPy array to Tensor
+        image_tensor = torch.from_numpy(image_array)
+
+        # Handle potential NaN/infinity issues
+        image_tensor = torch.nan_to_num(image_tensor, nan=0.0, posinf=1.0, neginf=0.0)
+        image_tensor = torch.clamp(image_tensor, 0, 1)  # Ensure values are in [0,1]
+
+        # Convert back to NumPy array and scale to 255
+        image_array = (image_tensor * 255).byte().cpu().numpy()
+
+        # Convert NumPy array back to PIL image
+        image = Image.fromarray(image_array)
+
+        return image
 
     def list_models(self) -> List[Dict[str, str]]:
         """
