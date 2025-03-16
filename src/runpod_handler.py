@@ -64,7 +64,7 @@ def initialize_agents():
         logger.info("All AI Generation Agents initialized successfully")
     except RuntimeError as e:
         if "HIP error" in str(e) or "CUDA error" in str(e):
-            logger.warning("GPU error detected, falling back to CPU")
+            logger.warn("GPU error detected, falling back to CPU")
             os.environ['CUDA_VISIBLE_DEVICES'] = ''
             initialize_agents()
         else:
@@ -102,10 +102,10 @@ def save_file(output_path):
             presigned_url = upload_file_to_bucket(filename, file_location, bucket_creds)
             return presigned_url
         else:
-            logger.warning(f"File {output_path} does not exist, skipping upload.")
+            logger.warn(f"File {output_path} does not exist, skipping upload.")
             return None
     else:
-        logger.warning("No output path provided, skipping file upload.")
+        logger.warn("No output path provided, skipping file upload.")
         return None
 
 def save_file_fallback(output_path):
