@@ -1,55 +1,44 @@
-FROM nvidia/cuda:12.3.0-cudnn9-runtime-ubuntu22.04
+# Use NVIDIA CUDA base image
+FROM nvidia/cuda:12.3.2-cudnn9-runtime-ubuntu22.04
 
 # Set environment variables
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV PYTHONUNBUFFERED=1
-ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    DEBIAN_FRONTEND=noninteractive \
+    USE_GPU=1 \
+    USE_FP16=1 \
+    PORT=8000
 
-# Install system dependencies
+# Install system dependencies in a single RUN command to minimize layers
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    python3.10 \
-    python3.10-dev \
-    python3-pip \
-    ffmpeg \
-    libsm6 \
-    libxext6 \
-    libgl1 \
-    git \
-    wget \
-    curl \
+    python3.10 python3.10-dev python3-pip \
+    ffmpeg libsm6 libxext6 libgl1 \
+    git wget curl \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Poetry
+# Install Poetry and configure it globally
 RUN curl -sSL https://install.python-poetry.org | python3.10 - \
-    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry
+    && ln -s /root/.local/bin/poetry /usr/local/bin/poetry \
+    && poetry config virtualenvs.create false
 
 # Set working directory
 WORKDIR /app
 
-# Copy pyproject.toml and poetry.lock (if exists)
+# Copy dependency files first for better caching
 COPY pyproject.toml poetry.lock* ./
 
-# Configure Poetry to not create a virtual environment
-RUN poetry config virtualenvs.create false
-
-# Install Python dependencies
+# Install Python dependencies before copying the entire codebase to leverage Docker caching
 RUN poetry install --no-interaction --no-ansi --without dev
 
 # Copy project files
 COPY . .
 
-# Create cache and output directories
-RUN mkdir -p cache output
-
-# Set environment variables
-ENV USE_GPU=1
-ENV USE_FP16=1
-ENV PORT=8000
+# Ensure necessary directories exist
+RUN mkdir -p /app/cache /app/output
 
 # Expose port
 EXPOSE 8000
-
 # Command to run the application
 CMD ["python3.10", "src/main.py", "--host", "0.0.0.0", "--port", "8000"]
 
