@@ -6,24 +6,23 @@ This script provides a serverless interface for the agent, allowing it to be
 deployed on RunPod's serverless infrastructure.
 """
 
+import base64
+
 # =============================================================================
 # Standard Library Imports
 # =============================================================================
 import os
-import sys
 import time
-import base64
 import traceback
 from io import BytesIO
 
 # =============================================================================
 # Third-Party Imports
 # =============================================================================
-import boto3
 import runpod
 from PIL import Image
 from runpod.serverless.modules.rp_logger import RunPodLogger
-from runpod.serverless.utils import rp_cleanup, rp_download, upload_file_to_bucket
+from runpod.serverless.utils import rp_cleanup, rp_download
 
 # =============================================================================
 # Local Imports
@@ -43,6 +42,7 @@ logger = RunPodLogger()
 image_agent = None
 video_agent = None
 image_changer_agent = None
+
 
 # =============================================================================
 # Agent Initialization
@@ -77,11 +77,15 @@ def initialize_agents():
             initialize_agents()
         else:
             error_traceback = traceback.format_exc()
-            logger.error(f"Error initializing agents: {e}\nStacktrace:\n{error_traceback}")
+            logger.error(
+                f"Error initializing agents: {e}\nStacktrace:\n{error_traceback}"
+            )
             raise e
     except Exception as e:
         error_traceback = traceback.format_exc()
-        logger.error(f"Unexpected error initializing agents: {e}\nStacktrace:\n{error_traceback}")
+        logger.error(
+            f"Unexpected error initializing agents: {e}\nStacktrace:\n{error_traceback}"
+        )
         raise e
 
 
@@ -176,7 +180,9 @@ def process_image_url(input_data):
         "seed": input_data.get("seed"),
     }
     logger.info(f"Processing image from URL: {image_url}")
-    output_path = image_changer_agent.process_image_url(image_url=image_url, **common_params)
+    output_path = image_changer_agent.process_image_url(
+        image_url=image_url, **common_params
+    )
     return {"output_path": output_path}, output_path
 
 
@@ -227,7 +233,7 @@ def handler(event):
             return {"error": f"Unknown method: {method}"}
 
         result, output_path = dispatch[method](input_data)
-        
+
         if output_path:
             presigned_url = save_file(logger, output_path)
             result["public_url"] = presigned_url

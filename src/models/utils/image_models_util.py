@@ -3,15 +3,14 @@ from typing import Dict, List
 
 import torch
 import torchvision.transforms as transforms
-
 from diffusers import (
+    AutoencoderKL,
     DiffusionPipeline,
     FluxPipeline,
-    StableDiffusionPipeline,
-    StableDiffusionXLPipeline,
-    StableDiffusionXLImg2ImgPipeline,
     StableDiffusionImg2ImgPipeline,
-    AutoencoderKL
+    StableDiffusionPipeline,
+    StableDiffusionXLImg2ImgPipeline,
+    StableDiffusionXLPipeline,
 )
 from PIL import Image
 
@@ -52,18 +51,19 @@ class ImageModelsUtil:
             for lora_id, lora_info in self.config.loras.items()
         ]
 
-
     def handle_image(self, image: Image.Image) -> Image.Image:
-                
+
         image_tensor = transforms.ToTensor()(image)
         image_tensor = image_tensor.to(torch.float32)  # Ensure correct dtype
 
         # Normalize the tensor to [0,1]
-        image_tensor = (image_tensor - image_tensor.min()) / (image_tensor.max() - image_tensor.min())
-        
+        image_tensor = (image_tensor - image_tensor.min()) / (
+            image_tensor.max() - image_tensor.min()
+        )
+
         transform = transforms.ToPILImage()
         image = transform(image_tensor)
-        
+
         return image
 
     def _load_model_txt_2_img(self, model_id: str) -> DiffusionPipeline:
@@ -86,10 +86,10 @@ class ImageModelsUtil:
         # custom_vae = AutoencoderKL.from_pretrained(vae_id, torch_dtype=torch.float16)
         custom_vae = None
 
-        torch_dtype = (
-            torch.float16 if self.precision == "fp16" else torch.float32
-        )
-        variant = "fp16" if torch_dtype == torch.float16 else None  # Ensure correct variant selection
+        torch_dtype = torch.float16 if self.precision == "fp16" else torch.float32
+        variant = (
+            "fp16" if torch_dtype == torch.float16 else None
+        )  # Ensure correct variant selection
 
         # Load the appropriate pipeline based on the model ID
         if "stable-diffusion-xl" in model_id:
@@ -100,7 +100,7 @@ class ImageModelsUtil:
                 variant=variant,
                 cache_dir=self.config.cache_dir,
                 token=self.config.huggingface_token,
-                vae=custom_vae
+                vae=custom_vae,
             )
         elif "FLUX" in model_id:
             pipe = FluxPipeline.from_pretrained(
@@ -110,7 +110,7 @@ class ImageModelsUtil:
                 variant=variant,
                 cache_dir=self.config.cache_dir,
                 token=self.config.huggingface_token,
-                vae=custom_vae
+                vae=custom_vae,
             )
         else:
             pipe = StableDiffusionPipeline.from_pretrained(
@@ -120,7 +120,7 @@ class ImageModelsUtil:
                 variant=variant,
                 cache_dir=self.config.cache_dir,
                 token=self.config.huggingface_token,
-                #vae=custom_vae
+                # vae=custom_vae
             )
 
         # Move the model to the device
@@ -183,10 +183,10 @@ class ImageModelsUtil:
         vae_id = "madebyollin/sdxl-vae-fp16-fix"  # High-quality SDXL VAE
         custom_vae = AutoencoderKL.from_pretrained(vae_id, torch_dtype=torch.float16)
 
-        torch_dtype = (
-            torch.float16 if self.precision == "fp16" else torch.float32
-        )
-        variant = "fp16" if torch_dtype == torch.float16 else None  # Ensure correct variant selection
+        torch_dtype = torch.float16 if self.precision == "fp16" else torch.float32
+        variant = (
+            "fp16" if torch_dtype == torch.float16 else None
+        )  # Ensure correct variant selection
 
         # Load the appropriate pipeline based on the model ID
         if "stable-diffusion-xl" in model_id:
@@ -197,7 +197,7 @@ class ImageModelsUtil:
                 variant=variant,
                 cache_dir=self.config.cache_dir,
                 token=self.config.huggingface_token,
-                vae=custom_vae
+                vae=custom_vae,
             )
         else:
             pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
@@ -207,7 +207,7 @@ class ImageModelsUtil:
                 variant=variant,
                 cache_dir=self.config.cache_dir,
                 token=self.config.huggingface_token,
-                vae=custom_vae
+                vae=custom_vae,
             )
 
         # Move the model to the device

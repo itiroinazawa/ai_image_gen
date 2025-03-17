@@ -10,7 +10,6 @@ import sys
 # Add the parent directory to the path so we can import the src module
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-import boto3
 
 from agent.image_gen_agent import ImageGenerationAgent
 from utils.config import Config

@@ -6,7 +6,6 @@ import logging
 import random
 from typing import Optional
 
-import numpy as np
 import torch
 from PIL import Image
 
@@ -102,6 +101,6 @@ class ImageGenerator:
             )
 
         # Handle image
-        image = self._image_models_util.handle_image(result.images[0])        
+        image = self._image_models_util.handle_image(result.images[0])
 
         return image

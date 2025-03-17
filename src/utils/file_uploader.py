@@ -1,11 +1,12 @@
 import os
+
 import boto3
 from runpod.serverless.modules.rp_logger import RunPodLogger
-
 
 # =============================================================================
 # Utility Functions for File Saving
 # =============================================================================
+
 
 def save_file(logger: RunPodLogger, output_path):
     # If an output file was generated, attempt to upload it and attach a public URL
@@ -23,6 +24,7 @@ def save_file(logger: RunPodLogger, output_path):
     else:
         logger.warn("No output path provided, skipping file upload.")
         return None
+
 
 def _save_file_runpod(logger: RunPodLogger, output_path):
     bucket_url = os.environ.get("BUCKET_ENDPOINT_URL")
