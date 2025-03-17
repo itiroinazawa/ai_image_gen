@@ -2,6 +2,8 @@ import os
 
 import boto3
 from runpod.serverless.modules.rp_logger import RunPodLogger
+from runpod.serverless.utils import upload_file_to_bucket
+
 
 # =============================================================================
 # Utility Functions for File Saving
@@ -9,21 +11,27 @@ from runpod.serverless.modules.rp_logger import RunPodLogger
 
 
 def save_file(logger: RunPodLogger, output_path):
-    # If an output file was generated, attempt to upload it and attach a public URL
-    if output_path:
-        logger.info(f"Output path: {output_path}")
-        presigned_url = _save_file_runpod(logger, output_path)
+    
+    try:
+        # If an output file was generated, attempt to upload it and attach a public URL
+        if output_path:
+            logger.info(f"Output path: {output_path}")
+            presigned_url = _save_file_runpod(logger, output_path)
 
-        if presigned_url:
-            logger.info(f"RunPod file saved successfully: {output_path}")
-            return presigned_url
+            if presigned_url:
+                logger.info(f"RunPod file saved successfully: {output_path}")
+                return presigned_url
+            else:
+                presigned_url = _save_file_s3(logger, output_path)
+                logger.info(f"S3 file saved successfully: {output_path}")
+                return presigned_url
         else:
-            presigned_url = _save_file_s3(logger, output_path)
-            logger.info(f"S3 file saved successfully: {output_path}")
-            return presigned_url
-    else:
-        logger.warn("No output path provided, skipping file upload.")
-        return None
+            logger.warn("No output path provided, skipping file upload.")
+            return None
+    except:
+        presigned_url = _save_file_s3(logger, output_path)
+        logger.info(f"Fallback - S3 file saved successfully: {output_path}")
+        return presigned_url
 
 
 def _save_file_runpod(logger: RunPodLogger, output_path):
